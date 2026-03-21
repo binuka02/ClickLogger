@@ -1,0 +1,525 @@
+/* Tap Logger Stylesheet */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', 'Roboto', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+body > div {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.welcome-screen h1 {
+    color: #667eea;
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.intro-text {
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.instructions {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: left;
+}
+
+.instructions h2 {
+    color: #333;
+    font-size: 22px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.rounds-info {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.rounds-info strong {
+    color: #667eea;
+}
+
+.instructions ul {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.8;
+    padding-left: 25px;
+    list-style-type: none;
+}
+
+.instructions li {
+    margin-bottom: 12px;
+    position: relative;
+    padding-left: 0;
+}
+
+.instructions li strong {
+    color: #667eea;
+}
+
+.study-note {
+    color: #667eea;
+    font-size: 15px;
+    font-style: italic;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.device-selection-prompt {
+    color: #667eea;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.time-estimate {
+    text-align: center;
+    color: #667eea;
+    font-size: 14px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+/* Device Selection */
+.device-prompt {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: 400;
+    text-align: center;
+}
+
+#buttoncontainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#buttoncontainer button {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 20px 60px;
+    font-size: 24px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    min-width: 280px;
+}
+
+#buttoncontainer button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: #f8f9fa;
+}
+
+#buttoncontainer button:active {
+    transform: translateY(0);
+}
+
+.container {
+    display: none;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+#counter {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 30px;
+    font-weight: 300;
+    font-family: 'Ek Mukta', sans-serif;
+    min-height: 40px;
+}
+
+#tapProgress {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.tap-count {
+    display: block;
+    font-size: 36px;
+    font-weight: 600;
+    color: #FFD700;
+    margin-bottom: 5px;
+}
+
+.taps-remaining {
+    display: block;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#action {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+#tapHere {
+    background: white;
+    border: none;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+}
+
+#tapHere:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+}
+
+#tapHere:active {
+    transform: scale(0.95);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+#tapHere img {
+    width: 80px;
+    height: 80px;
+    opacity: 0.7;
+}
+
+#continue {
+    display: none;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin: 20px auto 0;
+}
+
+#continue:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.spanWhite {
+    color: white;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.spanTime {
+    color: #FFD700;
+    font-weight: 600;
+    font-size: 32px;
+}
+
+.span2 {
+    color: white;
+    font-size: 24px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .welcome-screen {
+        max-width: 90%;
+        padding: 30px;
+    }
+    
+    #buttoncontainer {
+        max-width: 90%;
+    }
+    
+    .container {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    .welcome-screen {
+        padding: 25px;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 24px;
+    }
+    
+    .intro-text {
+        font-size: 15px;
+    }
+    
+    .instructions {
+        padding: 18px;
+    }
+    
+    .instructions h2 {
+        font-size: 20px;
+    }
+    
+    .rounds-info,
+    .instructions ul {
+        font-size: 15px;
+    }
+    
+    #buttoncontainer button {
+        min-width: 260px;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    .welcome-screen {
+        padding: 20px;
+        margin: 0 auto 20px;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+    
+    .intro-text {
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .instructions {
+        padding: 15px;
+    }
+    
+    .instructions h2 {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+    
+    .rounds-info {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .instructions ul {
+        font-size: 14px;
+        padding-left: 15px;
+        line-height: 1.6;
+    }
+    
+    .instructions li {
+        margin-bottom: 10px;
+    }
+    
+    .study-note {
+        font-size: 13px;
+        margin-top: 12px;
+    }
+    
+    .device-selection-prompt {
+        font-size: 14px;
+        margin-top: 15px;
+    }
+    
+    .time-estimate {
+        font-size: 12px;
+        margin-top: 15px;
+    }
+    
+    .device-prompt {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    #buttoncontainer button {
+        padding: 15px 30px;
+        font-size: 18px;
+        min-width: 220px;
+    }
+    
+    .container {
+        padding: 20px;
+    }
+    
+    #tapHere {
+        width: 150px;
+        height: 150px;
+    }
+    
+    #tapHere img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    #counter {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    #tapProgress {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    .tap-count {
+        font-size: 30px;
+    }
+    
+    .taps-remaining {
+        font-size: 14px;
+    }
+    
+    #continue {
+        padding: 12px 30px;
+        font-size: 16px;
+    }
+    
+    .spanTime {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 400px) {
+    .welcome-screen {
+        padding: 15px;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 20px;
+    }
+    
+    .intro-text {
+        font-size: 13px;
+    }
+    
+    .instructions {
+        padding: 12px;
+    }
+    
+    .instructions h2 {
+        font-size: 16px;
+    }
+    
+    .rounds-info,
+    .instructions ul {
+        font-size: 13px;
+    }
+    
+    .study-note {
+        font-size: 12px;
+    }
+    
+    #buttoncontainer button {
+        padding: 12px 25px;
+        font-size: 16px;
+        min-width: 200px;
+    }
+    
+    #tapHere {
+        width: 130px;
+        height: 130px;
+    }
+    
+    #tapHere img {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Accessibility */
+button:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Prevent text selection during tapping */
+#tapHere {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Success message */
+.success {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
