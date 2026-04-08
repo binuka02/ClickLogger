@@ -58,63 +58,66 @@
 			}
 
 			function syncToServer(isLastRound, roundNumber) {
-				console.log("syncToServer called. tapLogsArray length:", tapLogsArray.length, "isLastRound:", isLastRound);
+    console.log("syncToServer called. tapLogsArray length:", tapLogsArray.length, "isLastRound:", isLastRound);
 
-				if (!tapLogsArray || tapLogsArray.length === 0) {
-					console.error("No taps to save!");
-					return;
-				}
+    if (!tapLogsArray || tapLogsArray.length === 0) {
+        console.error("No taps to save!");
+        return;
+    }
 
-				var tapsToSend = tapLogsArray.slice();
-				var roundId = uniqueIdentifier + "_round" + roundNumber;
+    var tapsToSend = tapLogsArray.slice();                        // ✅ snapshot
+    var roundId = uniqueIdentifier + "_round" + roundNumber;      // ✅ unique per round
 
-				var xmlhttp = new XMLHttpRequest();
+    var xmlhttp = new XMLHttpRequest();
 
-				xmlhttp.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-						var responseText = this.responseText;
-						console.log("Response:", responseText);
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var responseText = this.responseText;
+            console.log("Response:", responseText);
 
-						try {
-							var response = JSON.parse(responseText);
-							if(response.success) {
-								if(isLastRound) {
-									document.getElementById("container").innerHTML = 
-										'<span class="spanWhite">Data saved successfully! Thank you so much!</span>';
-								}
-							} else {
-								if(isLastRound) {
-									document.getElementById("container").innerHTML = 
-										'<span class="spanWhite">Error saving data. Please try again.</span>';
-								} else {
-									console.error("Error saving round 1 data.");
-								}
-							}
-						} catch(e) {
-							if(isLastRound) {
-								document.getElementById("container").innerHTML = 
-									'<span class="spanWhite">Error parsing response. Please try again.</span>';
-							} else {
-								console.error("Error parsing round 1 response:", e);
-							}
-						}
-					} else if (this.readyState == 4) {
-						if(isLastRound) {
-							document.getElementById("container").innerHTML = 
-								'<span class="spanWhite">Server error. Please try again.</span>';
-						} else {
-							console.error("Server error saving round 1.");
-						}
-					}
-				};
-				
-				var url = "https://click-logger-backend2.vercel.app/saveTaps";
-				var params ="id="+uniqueIdentifier+"&var="+dependentVariable+"&taps=["+tapLogsArray+"]";
-				xmlhttp.open("POST",url,true);
-				xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-				xmlhttp.send(params);
-			}
+            try {
+                var response = JSON.parse(responseText);
+                if(response.success) {
+                    if(isLastRound) {
+                        document.getElementById("container").innerHTML = 
+                            '<span class="spanWhite">Data saved successfully! Thank you so much!</span>';
+                    }
+                } else {
+                    if(isLastRound) {
+                        document.getElementById("container").innerHTML = 
+                            '<span class="spanWhite">Error saving data. Please try again.</span>';
+                    } else {
+                        console.error("Error saving round 1 data.");
+                    }
+                }
+            } catch(e) {
+                if(isLastRound) {
+                    document.getElementById("container").innerHTML = 
+                        '<span class="spanWhite">Error parsing response. Please try again.</span>';
+                } else {
+                    console.error("Error parsing round 1 response:", e);
+                }
+            }
+        } else if (this.readyState == 4) {
+            if(isLastRound) {
+                document.getElementById("container").innerHTML = 
+                    '<span class="spanWhite">Server error. Please try again.</span>';
+            } else {
+                console.error("Server error saving round 1.");
+            }
+        }
+    };
 
+    var url = "https://click-logger-backend2.vercel.app/saveTaps";
+    var params = "id=" + roundId +               // ✅ was: uniqueIdentifier
+                 "&var=" + dependentVariable + 
+                 "&taps=[" + tapsToSend + "]";   // ✅ was: tapLogsArray
+
+    xmlhttp.open("POST", url, true);
+    xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xmlhttp.send(params);
+}
+			
 			function tapityTap(tep){
 
 				// Exit immediately if tap limit already reached
