@@ -28,66 +28,43 @@
 			var interfaceVariations = 2;
 			var interfaceSequence = 1;
 
+			// Track whether this is the final round
+			var isFinalRound = false;
+
 			//Called when page finishes loading
 			function onLoad(){
 				var el = document.getElementById('tapHere');
 				d = new Date();
 
 				if(d.getTime()%2 ==0){
-
-					//console.log("Even");
 					showFeedback=true;
-
-				}else{
-
-					//console.log("Odd");
-					//showFeedback = false;
-
 				}
 
 				uniqueIdentifier = d.getTime();
 				var randomNumber = Math.floor(Math.random() * 42);
 				uniqueIdentifier=uniqueIdentifier+""+randomNumber;
-				//console.log("ID:"+uniqueIdentifier+","+randomNumber);
-
-				/*el.addEventListener('mousedown', tapityTap("mousedown"));
-				el.addEventListener('mouseup', tapityTap("mouseup"));
-
-				el.addEventListener('touchdown', tapityTap("touchdown"));
-				el.addEventListener('touchup', tapityTap("touchup"));*/
-				/*["mouseup","mousedown","mouseout","click","dblclick","touchstart","touchend",
-         		"touchleave","touchmove","touchcancel"].forEach(function(te) {
-     			el.addEventListener(te, tapityTap);
- 				});*/
 
 				//Set mouse and touch listeners
-				//tapityTap() is set as the common listener for the events
 				["mouseup","mousedown","touchstart","touchend"].forEach(function(te) {
      			el.addEventListener(te, tapityTap);
  				});
-
- 				//document.getElementById("tapHere").innerHTML = "<span class='span2'>Tap here</span>";
 			}
 
 			function saveDependentVariable(dVariable){
-
 				dependentVariable = dVariable;
-				//document.getElementById("variable1").style.display = "none";
-				//document.getElementById("variable2").style.display = "none";
 				document.getElementById("welcome").style.display = "none";
 				document.getElementById("buttoncontainer").style.display = "none";
 				document.getElementById("container").style.display = "block";
-
 			}
 
-			function syncToServer(){
+			function syncToServer(isLastRound){
+    console.log("syncToServer called. tapLogsArray length:", tapLogsArray.length, "isLastRound:", isLastRound);
 
 				var xmlhttp;
 			    
-			    if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+			    if (window.XMLHttpRequest) {
 			        xmlhttp = new XMLHttpRequest();
-			    }
-			    else {// code for IE6, IE5
+			    } else {
 			        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 			    }
 
@@ -100,45 +77,55 @@
 				        try {
 				        	var response = JSON.parse(responseText);
 				        	if(response.success) {
-				        		document.getElementById("container").innerHTML = '<span class="spanWhite">Data saved successfully! Thank you so much!</span>';
+				        		// ✅ Only show thank you message after the FINAL round
+				        		if(isLastRound) {
+				        			document.getElementById("container").innerHTML = '<span class="spanWhite">Data saved successfully! Thank you so much!</span>';
+				        		}
+				        		// Round 1: do nothing here — UI is already handled by tapityTap
 				        	} else {
-				        		document.getElementById("container").innerHTML = '<span class="spanWhite">Error saving data. Please try again.</span>';
+				        		// Show error without destroying the container on round 1
+				        		if(isLastRound) {
+				        			document.getElementById("container").innerHTML = '<span class="spanWhite">Error saving data. Please try again.</span>';
+				        		} else {
+				        			console.error("Error saving round 1 data.");
+				        		}
 				        	}
 				        } catch(e) {
-				        	document.getElementById("container").innerHTML = '<span class="spanWhite">Error parsing response. Please try again.</span>';
+				        	if(isLastRound) {
+				        		document.getElementById("container").innerHTML = '<span class="spanWhite">Error parsing response. Please try again.</span>';
+				        	} else {
+				        		console.error("Error parsing round 1 response:", e);
+				        	}
 				        }
 				    } else if (this.readyState == 4) {
-				    	document.getElementById("container").innerHTML = '<span class="spanWhite">Server error. Please try again.</span>';
+				    	if(isLastRound) {
+				    		document.getElementById("container").innerHTML = '<span class="spanWhite">Server error. Please try again.</span>';
+				    	} else {
+				    		console.error("Server error on round 1 save.");
+				    	}
 				    }
 				};
 				
-				// Update this URL to point to your deployed Node.js backend
-				// For local testing: "http://localhost:3000/saveTaps"
-				// For production: "https://your-backend-url.com/saveTaps"
-				var url = "http://localhost:3000/saveTaps";
+				var url = "https://click-logger-backend2.vercel.app/saveTaps";
 				var params ="id="+uniqueIdentifier+"&var="+dependentVariable+"&taps=["+tapLogsArray+"]";
 				xmlhttp.open("POST",url,true);
 				xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 				xmlhttp.send(params);
-
 			}
 
 			function tapityTap(tep){
 
-				//get handle to the tap area element
-				//var el = document.getElementById("tapHere");
+				// ✅ Exit immediately if tap limit already reached
+				if (tapCounter >= tapLimit) return;
+
 				d = new Date();
-
-				//var n = d.getTime();
-
-				//get the event type
 				var te = tep.type;
 
-				//update the text of the action element
-				document.getElementById("action").innerHTML = te;
+				// ✅ Null-safe update
+				var actionEl = document.getElementById("action");
+				if (actionEl) actionEl.innerHTML = te;
 
 				console.log("Ready:"+te);
-				//document.getElementById("tapHere").innerHTML = "I am listening: "+te;
 
 				switch(te){
 
@@ -149,7 +136,6 @@
 					startTap = d.getTime();
 					if(tapSessionStartTime==0)
 						tapSessionStartTime = startTap;
-
 					break;
 
 					case "touchend":
@@ -158,36 +144,28 @@
 					case "mouseup":
 					endTap = d.getTime();
 					var duration = (endTap - startTap);
-					//tapCounter++;					
 
-					//handle exception 
 					if(startTap ==0 || endTap == 0){
 
-						//console.log("Tap count:"+tapCounter + "; Tap duration:"+duration +" millisec");
 						tapLog += "<br>Tap #"+tapCounter + "; One of the timestamps is 0.";
 
+					}else if(startTap>0 && endTap>0 && (startTap > endTap)){
 
-					}else if(startTap>0 && endTap >0 && (startTap > endTap)){
-
-						//console.log("Tap count:"+tapCounter + "; Tap duration:"+duration +" millisec");
-						//tapLog += "<br>Tap count:"+tapCounter + "; Start timestamp larger than end timestamp";
-						
+						// invalid tap, do nothing
 
 					}else{
 
 						console.log("Tap #"+tapCounter + "; Tap duration:"+duration +" ms");
-						tapCounter++;	
-						//tapTimeArray.push(duration);
+						tapCounter++;
 						totalTouchDuration+=duration;
 						var meanTouchDuration = totalTouchDuration / tapCounter;
-						
-						// Update tap progress counter
+
+						// ✅ Null-safe progress update
 						var remaining = tapLimit - tapCounter;
-						document.getElementById("tapProgress").innerHTML = '<span class="tap-count">' + tapCounter + ' / ' + tapLimit + '</span><span class="taps-remaining">' + remaining + ' taps remaining</span>';
+						var progressEl = document.getElementById("tapProgress");
+						if (progressEl) progressEl.innerHTML = '<span class="tap-count">' + tapCounter + ' / ' + tapLimit + '</span><span class="taps-remaining">' + remaining + ' taps remaining</span>';
 
 						var tap = {};
-						//tap["ID"]=uniqueIdentifier;
-						//tap["dependentVariable"] = dependentVariable;
 						tap["tapSequenceNumber"]=tapCounter;
 						tap["startTimestamp"]=startTap;
 						tap["endTimestamp"]=endTap;
@@ -199,78 +177,76 @@
 							tap["interface"]= "feedbackshown";
 						else
 							tap["interface"]= "nofeedback";
-						//console.log(tap);
-						//console.log("Tap string:"+JSON.stringify(tap));
 
 						tapLogsArray.push(JSON.stringify(tap));
-
 						tapLog += "<br>Tap #"+tapCounter + "; Tap duration:"+duration +" ms";
 
-						//if(tapCounter>=tapLimit || ((endTap - tapSessionStartTime)/1000) >60 ){
-						if(tapCounter>=tapLimit){
-							
-							//console.log(JSON.stringify(tapLogsArray));
-							interfaceSequence++;
+						if(tapCounter >= tapLimit){
 
-							if(interfaceSequence <= interfaceVariations){
+    interfaceSequence++;
 
-								document.getElementById("counter").innerHTML = '<span class="spanWhite">Mean tap duration: <span class="spanTime">'+Math.round(meanTouchDuration,2)+'</span> ms</span>';
-								document.getElementById("continue").style.display="block";
-								document.getElementById("tapHere").style.display="none";
-								//console.log(tapLogsArray.toString());
-								//syncToServer();
+    var counterEl = document.getElementById("counter");
+    if(counterEl) counterEl.innerHTML = '<span class="spanWhite">Mean tap duration: <span class="spanTime">'+Math.round(meanTouchDuration,2)+'</span> ms</span>';
 
-							}else{
-							
-								document.getElementById("counter").innerHTML = '<span class="spanWhite">Mean tap duration: <span class="spanTime">'+Math.round(meanTouchDuration,2)+'</span> ms</span>';
-								document.getElementById("tapHere").style.display="none";
-								//console.log(tapLogsArray.toString());
-								syncToServer();
-							}
+    var tapHereEl = document.getElementById("tapHere");
+    if(tapHereEl) tapHereEl.style.display="none";
 
-							return;
+    // ✅ Clear the action label immediately
+    var actionEl = document.getElementById("action");
+    if(actionEl) actionEl.innerHTML = "";
+
+    if(interfaceSequence <= interfaceVariations){
+        var continueEl = document.getElementById("continue");
+        if(continueEl) continueEl.style.display="block";
+        syncToServer(false);
+    }else{
+        syncToServer(true);
+    }
+
+    return;
+}
+
+						if(showFeedback){
+							var counterEl = document.getElementById("counter");
+							if(counterEl) counterEl.innerHTML= "Mean tap duration: <span class='spanTime'>"+Math.round(meanTouchDuration,2)+"</span> ms";
 						}
-
-						//Update the tap# and mean touch duration time  
-						//document.getElementById("counter").innerHTML= "Tap #"+tapCounter+" Mean touch duration: <span class='spanTime'>"+Math.round(meanTouchDuration,2)+"</span> ms";
-						if(showFeedback)
-							document.getElementById("counter").innerHTML= "Mean tap duration: <span class='spanTime'>"+Math.round(meanTouchDuration,2)+"</span> ms";
-
-						//console.log(tapLogsArray);
-						//console.log(tapLogsArray.toString());
-						//document.getElementById("tapHere").innerHTML= tapLog;
 					}
-
-					//console.log(tapLog);
-					//document.getElementById("tapHere").innerHTML= tapLog ;
-					//document.getElementById("counter").innerHTML= tapCounter ;
 
 					startTap = 0;
 					endTap = 0;
-
-
 					break;
-
 				}
-
-				//alert("Its is a tap");
 			}
 
 			function startNext(){
+				console.log("startNext called. tapLogsArray length before reset:", tapLogsArray.length);
+				// ✅ Reset all counters for the next round
 				startTap = 0;
 				endTap = 0;
 				tapCounter = 0;
 				totalTouchDuration = 0;
-				document.getElementById("tapHere").style.display="block";
-				document.getElementById("continue").style.display="none";
-				document.getElementById("counter").innerHTML="";
-				document.getElementById("tapProgress").innerHTML="";
-				if(showFeedback)
-					showFeedback = false;
-				else
-					showFeedback = true;
+				tapSessionStartTime = 0;
+				tapLogsArray = [];
+				tapLog = "";
 
+				// ✅ Toggle feedback for next round
+				showFeedback = !showFeedback;
 
+				// ✅ Restore UI elements
+				var tapHereEl = document.getElementById("tapHere");
+				if(tapHereEl) tapHereEl.style.display="block";
+
+				var continueEl = document.getElementById("continue");
+				if(continueEl) continueEl.style.display="none";
+
+				var counterEl = document.getElementById("counter");
+				if(counterEl) counterEl.innerHTML="";
+
+				var progressEl = document.getElementById("tapProgress");
+				if(progressEl) progressEl.innerHTML="";
+
+				var actionEl = document.getElementById("action");
+				if(actionEl) actionEl.innerHTML="";
 			}
 
 		</script>
@@ -286,7 +262,7 @@
 					<p class="rounds-info">You'll complete <strong>two rounds</strong> of 50 taps each (100 taps total):</p>
 					<ul>
 						<li><strong>Round 1:</strong> Press and hold the button, then release it - do this 50 times. You may or may not see your average hold time.</li>
-						<li><strong>Round 2:</strong> Repeat the same process for another 50 taps. The feedback display will switch (if you saw it before, you won’t now, and vice versa)</li>
+						<li><strong>Round 2:</strong> Repeat the same process for another 50 taps. The feedback display will switch (if you saw it before, you won't now, and vice versa)</li>
 					</ul>
 					<p class="study-note">This helps us study whether seeing your performance affects your tapping speed!</p>
 				</div>
