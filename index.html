@@ -57,53 +57,55 @@
 				document.getElementById("container").style.display = "block";
 			}
 
-			function syncToServer(isLastRound){
-    console.log("syncToServer called. tapLogsArray length:", tapLogsArray.length, "isLastRound:", isLastRound);
+			function syncToServer(isLastRound, roundNumber) {
+				console.log("syncToServer called. tapLogsArray length:", tapLogsArray.length, "isLastRound:", isLastRound);
 
-				var xmlhttp;
-			    
-			    if (window.XMLHttpRequest) {
-			        xmlhttp = new XMLHttpRequest();
-			    } else {
-			        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-			    }
+				if (!tapLogsArray || tapLogsArray.length === 0) {
+					console.error("No taps to save!");
+					return;
+				}
+
+				var tapsToSend = tapLogsArray.slice();
+				var roundId = uniqueIdentifier + "_round" + roundNumber;
+
+				var xmlhttp = new XMLHttpRequest();
 
 				xmlhttp.onreadystatechange = function() {
-				    if (this.readyState == 4 && this.status == 200) {
-				    	
-				        var responseText = this.responseText;
-				        console.log("Response:"+responseText);
-				        
-				        try {
-				        	var response = JSON.parse(responseText);
-				        	if(response.success) {
-				        		// ✅ Only show thank you message after the FINAL round
-				        		if(isLastRound) {
-				        			document.getElementById("container").innerHTML = '<span class="spanWhite">Data saved successfully! Thank you so much!</span>';
-				        		}
-				        		// Round 1: do nothing here — UI is already handled by tapityTap
-				        	} else {
-				        		// Show error without destroying the container on round 1
-				        		if(isLastRound) {
-				        			document.getElementById("container").innerHTML = '<span class="spanWhite">Error saving data. Please try again.</span>';
-				        		} else {
-				        			console.error("Error saving round 1 data.");
-				        		}
-				        	}
-				        } catch(e) {
-				        	if(isLastRound) {
-				        		document.getElementById("container").innerHTML = '<span class="spanWhite">Error parsing response. Please try again.</span>';
-				        	} else {
-				        		console.error("Error parsing round 1 response:", e);
-				        	}
-				        }
-				    } else if (this.readyState == 4) {
-				    	if(isLastRound) {
-				    		document.getElementById("container").innerHTML = '<span class="spanWhite">Server error. Please try again.</span>';
-				    	} else {
-				    		console.error("Server error on round 1 save.");
-				    	}
-				    }
+					if (this.readyState == 4 && this.status == 200) {
+						var responseText = this.responseText;
+						console.log("Response:", responseText);
+
+						try {
+							var response = JSON.parse(responseText);
+							if(response.success) {
+								if(isLastRound) {
+									document.getElementById("container").innerHTML = 
+										'<span class="spanWhite">Data saved successfully! Thank you so much!</span>';
+								}
+							} else {
+								if(isLastRound) {
+									document.getElementById("container").innerHTML = 
+										'<span class="spanWhite">Error saving data. Please try again.</span>';
+								} else {
+									console.error("Error saving round 1 data.");
+								}
+							}
+						} catch(e) {
+							if(isLastRound) {
+								document.getElementById("container").innerHTML = 
+									'<span class="spanWhite">Error parsing response. Please try again.</span>';
+							} else {
+								console.error("Error parsing round 1 response:", e);
+							}
+						}
+					} else if (this.readyState == 4) {
+						if(isLastRound) {
+							document.getElementById("container").innerHTML = 
+								'<span class="spanWhite">Server error. Please try again.</span>';
+						} else {
+							console.error("Server error saving round 1.");
+						}
+					}
 				};
 				
 				var url = "https://click-logger-backend2.vercel.app/saveTaps";
@@ -115,13 +117,13 @@
 
 			function tapityTap(tep){
 
-				// ✅ Exit immediately if tap limit already reached
+				// Exit immediately if tap limit already reached
 				if (tapCounter >= tapLimit) return;
 
 				d = new Date();
 				var te = tep.type;
 
-				// ✅ Null-safe update
+				// Null-safe update
 				var actionEl = document.getElementById("action");
 				if (actionEl) actionEl.innerHTML = te;
 
@@ -160,7 +162,7 @@
 						totalTouchDuration+=duration;
 						var meanTouchDuration = totalTouchDuration / tapCounter;
 
-						// ✅ Null-safe progress update
+						// Null-safe progress update
 						var remaining = tapLimit - tapCounter;
 						var progressEl = document.getElementById("tapProgress");
 						if (progressEl) progressEl.innerHTML = '<span class="tap-count">' + tapCounter + ' / ' + tapLimit + '</span><span class="taps-remaining">' + remaining + ' taps remaining</span>';
@@ -191,17 +193,17 @@
     var tapHereEl = document.getElementById("tapHere");
     if(tapHereEl) tapHereEl.style.display="none";
 
-    // ✅ Clear the action label immediately
+    // Clear the action label immediately
     var actionEl = document.getElementById("action");
     if(actionEl) actionEl.innerHTML = "";
 
     if(interfaceSequence <= interfaceVariations){
-        var continueEl = document.getElementById("continue");
-        if(continueEl) continueEl.style.display="block";
-        syncToServer(false);
-    }else{
-        syncToServer(true);
-    }
+    var continueEl = document.getElementById("continue");
+    if(continueEl) continueEl.style.display="block";
+    syncToServer(false, 1);  //Round 1
+} else {
+    syncToServer(true, 2);   //Round 2
+}
 
     return;
 }
@@ -220,7 +222,7 @@
 
 			function startNext(){
 				console.log("startNext called. tapLogsArray length before reset:", tapLogsArray.length);
-				// ✅ Reset all counters for the next round
+				// Reset all counters for the next round
 				startTap = 0;
 				endTap = 0;
 				tapCounter = 0;
@@ -229,10 +231,10 @@
 				tapLogsArray = [];
 				tapLog = "";
 
-				// ✅ Toggle feedback for next round
+				// Toggle feedback for next round
 				showFeedback = !showFeedback;
 
-				// ✅ Restore UI elements
+				// Restore UI elements
 				var tapHereEl = document.getElementById("tapHere");
 				if(tapHereEl) tapHereEl.style.display="block";
 
@@ -269,7 +271,7 @@
 			</div>
 			<div id="buttoncontainer">
 				<h3 class="device-prompt">Which device are you using?</h3>
-				<button type="button" onclick="saveDependentVariable('android')" id="variable1">Mobile</button>
+				<button type="button" onclick="saveDependentVariable('mobile')" id="variable1">Mobile</button>
 				<button type="button" onclick="saveDependentVariable('pc')" id="variable2">PC</button>
 			</div>
 			<div id="container" class="container">
