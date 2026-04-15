@@ -207,7 +207,7 @@
     function deviceCard(data) {
       return `
         <div class="card">
-          <h2>Query 1 — Device Performance</h2>
+          <h2>Query 1 - Device Performance</h2>
           <div class="group">
             <div class="group-label green">Android / Mobile</div>
             ${statRow("Total taps", data.android.totalTaps)}
@@ -230,7 +230,7 @@
     function interfaceCard(data) {
       return `
         <div class="card">
-          <h2>Query 2 — Interface Comparison</h2>
+          <h2>Query 2 - Interface Comparison</h2>
           <div class="group">
             <div class="group-label amber">With Feedback</div>
             ${statRow("Total taps", data.feedback.totalTaps)}
@@ -256,7 +256,7 @@
 
       return `
         <div class="card">
-          <h2>Query 3 — User Completion</h2>
+          <h2>Query 3 - User Completion</h2>
           <div class="stat-row" style="margin-bottom:20px">
             <span class="stat-label">Total participants</span>
             <span class="stat-value">${data.totalUsers}</span>
@@ -275,13 +275,6 @@
                 <div class="bar-fill amber" style="width:${pct(data.droppedAfterFirst)}%"></div>
               </div>
               <span class="bar-count">${data.droppedAfterFirst}</span>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">Incomplete</span>
-              <div class="bar-track">
-                <div class="bar-fill red" style="width:${pct(data.incomplete)}%"></div>
-              </div>
-              <span class="bar-count">${data.incomplete}</span>
             </div>
           </div>
         </div>`;
